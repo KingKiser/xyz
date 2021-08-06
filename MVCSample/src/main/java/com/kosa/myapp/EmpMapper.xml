@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kosa.myapp.IEmpRepository">
+
+	<select id="getEmpCount" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM employees
+		<if test="deptid != null">
+			WHERE department_id= #{deptid}
+		</if>
+	</select>
+
+	<resultMap type="com.kosa.myapp.EmpVO" id="empMap">
+		<result column="employee_id" property="employeeId" />
+		<result property="firstName" column="first_name" />
+		<result property="lastName" column="last_name" />
+		<result property="email" column="email" />
+		<result property="phoneNumber" column="phone_number" />
+		<result property="hireDate" column="hire_date" />
+		<result property="jobId" column="job_id" />
+		<result property="salary" column="salary" />
+		<result property="commissionPct" column="commission_pct" />
+		<result property="managerId" column="manager_id" />
+		<result property="departmentId" column="department_id" />
+	</resultMap>
+
+	<select id="getEmpList" resultMap="empMap">
+		select * from employees
+	</select>
+	<select id="getEmpInfo" parameterType="int"
+		resultType="com.kosa.myapp.EmpVO">
+		select employee_id as employeeId,
+		first_name as fistName,
+		last_name as lastName,
+		email as email,
+		phone_number as phoneNumber,
+		hire_date as hireDate,
+		job_id as jobId,
+		salary as salary,
+		commission_pct
+		as commissionPct,
+		manager_id as managerId,
+		department_id as departmentId
+		from employees where employee_id = #{empid}
+	</select>
+
+	<update id="updateEmp" parameterType="com.kosa.myapp.EmpVO">
+		update employees
+		set
+		first_name=#{firstName}, last_name=#{lastName}, email=#{email},
+		phone_number=#{phoneNumber}, hire_date=#{hireDate}, job_id=#{jobId},
+		salary=#{salary}, commission_pct=#{commissionPct},
+		manager_id=#{managerId},
+		department_id=#{departmentId}
+		where
+		employee_id = #{employeeId}
+	</update>
+
+	<insert id="insertEmp" parameterType="com.kosa.myapp.EmpVO">
+		insert into employees
+		(employee_id, first_name, email,
+		phone_number, hire_date, job_id, salary,
+		commission_pct, manager_id, department_id)
+		values (
+		#{employeeId},
+		#{firstName}, #{lastName}, #{email}, #{phoneNumber},
+		SYSDATE, #{jobId},
+		#{salary}, #{commissionPct}, #{managerId},
+		#{departmentId})
+	</insert>
+
+	<delete id="deleteJobHistory" parameterType="int">
+		delete job_history
+		where employee_id=${empid}
+	</delete>
+
+	<delete id="deleteEmp">
+		delete employees where employee_id=#{empid} and
+		email=#{email}
+	</delete>
+
+	<select id="getAllJobId" resultType="hashmap">
+		select job_id as "jobId",
+		job_title as "jobTitle" from jobs
+	</select>
+
+	<select id="getAllManagerId" resultType="hashmap">
+		select
+		d.manager_id as "managerId",
+		e.first_name as "firstName"
+		from departments d join employees e
+		on d.manager_id = e.employee_id
+		order by d.manager_id
+	</select>
+
+	<select id="getAllDeptId" resultType="hashmap">
+		select
+		department_id as "departmentId",
+		department_name as "departmentName"
+		from departments
+	</select>
+
+</mapper>
